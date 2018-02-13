@@ -1,0 +1,26 @@
+package model
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"time"
+
+	"gopkg.in/mgo.v2/bson"
+)
+
+// *****************************************************************************
+// Meeting
+// *****************************************************************************
+
+// Meeting table contains the information for each meeting
+type Meeting struct {
+	ObjectID  bson.ObjectId `bson:"_id"`
+	Title   string  `db:"title" bson:"title"`
+	Location string `db:"location" bson:"location"`
+	Starttime string     `db:"starttime" bson:"starttime"`
+	CreatedBy  string `bson:"createdby"`
+	CreatedOn time.Time     `db:"createdon" bson:"createdon"`
+	Deleted   uint8         `db:"deleted" bson:"deleted"`
+}
