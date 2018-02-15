@@ -1,4 +1,4 @@
-package view
+package controller
 
 import (
 	"encoding/gob"
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ya42/go_webapp/service/session"
+	"github.com/ya42/go_webapp/common/session"
 )
 
 func init() {
@@ -108,7 +108,7 @@ func (v *View) PrependBaseURI(s string) string {
 }
 
 // New returns a new view
-func New(req *http.Request) *View {
+func NewView(req *http.Request) *View {
 	v := &View{}
 	v.Vars = make(map[string]interface{})
 	v.Vars["AuthLevel"] = "anon"

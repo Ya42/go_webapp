@@ -2,33 +2,43 @@ package boltAdapter
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-	"time"
 	"github.com/boltdb/bolt"
 )
 
+type BoltConnection struct{
+	Database *bolt.DB
+	LastError error
+}
+
+var (
+	Connection BoltConnection
+)
+
 // Connect to the database
-func Connect(path string, timeout int) *bolt.DB{
-  if db, err = bolt.Open(path, 0600, nil); err != nil {
-		log.Println("Bolt Driver Error", err)
-		return nil, err
+func Connect(path string, timeout int) BoltConnection{
+  db, err := bolt.Open(path, 0600, nil)
+	if err != nil {
+	  log.Fatalln("Bolt Driver Error", err)
+		Connection.Database = nil
+		Connection.LastError = err
+		return Connection
 	}
-	return db, err
+	Connection.Database = db
+	return Connection
 }
 
-func (db *bolt.DB) Close(){
-
+func (db BoltConnection) Close(){
+  db.Database.Close()
 }
 
-func (db *bolt.DB) Update(bucketName string, key string, dataStruct interface{}) error {
-	err := db.Update(func(tx *bolt.Tx) error {
+func (db BoltConnection) Update(bucketName string, key string, dataStruct interface{}) error {
+	err := db.Database.Update(func(tx *bolt.Tx) error {
 		// Create the bucket
 		bucket, e := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if e != nil {
 			return e
 		}
-		// Encode the record
 		encodedRecord, e := json.Marshal(dataStruct)
 		if e != nil {
 			return e
@@ -41,8 +51,8 @@ func (db *bolt.DB) Update(bucketName string, key string, dataStruct interface{})
 	return err
 }
 
-func (db *bolt.DB) View(bucketName string, key string, dataStruct interface{}) error {
-	err := BoltDB.View(func(tx *bolt.Tx) error {
+func (db BoltConnection) View(bucketName string, key string, dataStruct interface{}) error {
+	err := db.Database.View(func(tx *bolt.Tx) error {
 		// Get the bucket
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
@@ -61,8 +71,8 @@ func (db *bolt.DB) View(bucketName string, key string, dataStruct interface{}) e
 	return err
 }
 
-func (db *bolt.DB) Delete(bucketName string, key string) error {
-	err := BoltDB.Update(func(tx *bolt.Tx) error {
+func (db BoltConnection) Delete(bucketName string, key string) error {
+	err := db.Database.Update(func(tx *bolt.Tx) error {
 		// Get the bucket
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {

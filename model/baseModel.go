@@ -1,10 +1,8 @@
 package model
 
 import (
-	"database/sql"
 	"errors"
-
-	"gopkg.in/mgo.v2"
+	//"gopkg.in/mgo.v2"
 )
 
 var (
@@ -17,12 +15,3 @@ var (
 	// ErrUnauthorized is a permissions violation
 	ErrUnauthorized = errors.New("User does not have permission to perform this operation.")
 )
-
-// standardizeErrors returns the same error regardless of the database used
-func standardizeError(err error) error {
-	if err == sql.ErrNoRows || err == mgo.ErrNotFound {
-		return ErrNoResult
-	}
-
-	return err
-}

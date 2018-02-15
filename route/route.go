@@ -8,7 +8,7 @@ import (
 	hr "github.com/ya42/go_webapp/route/middleware/httprouterwrapper"
 	"github.com/ya42/go_webapp/route/middleware/logrequest"
 	"github.com/ya42/go_webapp/route/middleware/pprofhandler"
-	"github.com/ya42/go_webapp/service/session"
+	"github.com/ya42/go_webapp/common/session"
 
 	"github.com/gorilla/context"
 	"github.com/josephspurrier/csrfbanana"

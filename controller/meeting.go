@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"github.com/ya42/go_webapp/model"
-	"github.com/ya42/go_webapp/service/session"
-	"github.com/ya42/go_webapp/service/view"
+	"github.com/ya42/go_webapp/service"
+	"github.com/ya42/go_webapp/common/passhash"
+	"github.com/ya42/go_webapp/common/session"
 
 	"github.com/gorilla/context"
 	"github.com/josephspurrier/csrfbanana"
@@ -30,33 +31,31 @@ func MeetingList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Display the view
-	v := view.New(r)
+	v := NewView(r)
 	v.Name = "meeting/index"
 	v.Vars["first_name"] = sess.Values["first_name"]
 	v.Vars["meetings"] = meetings
 	v.Render(w)
 }
 
-// MeetingpadCreateGET displays the meeting creation page
 func CreateNewMeeting(w http.ResponseWriter, r *http.Request) {
 	// Get session
 	sess := session.Instance(r)
 
 	// Display the view
-	v := view.New(r)
+	v := NewView(r)
 	v.Name = "meeting/newmeeting"
 	v.Vars["token"] = csrfbanana.Token(w, r, sess)
 	v.Render(w)
 }
 
-// SaveMeeting handles the meeting creation form submission
 func SaveMeeting(w http.ResponseWriter, r *http.Request) {
 	// Get session
 	sess := session.Instance(r)
 
 	// Validate with required fields
-	if validate, missingField := view.Validate(r, []string{"location","title","starttime"}); !validate {
-		sess.AddFlash(view.Flash{"Field missing: " + missingField, view.FlashError})
+	if validate, missingField := Validate(r, []string{"location","title","starttime"}); !validate {
+		sess.AddFlash(Flash{"Field missing: " + missingField, FlashError})
 		sess.Save(r, w)
 		CreateNewMeeting(w, r)
 		return
@@ -79,19 +78,19 @@ func SaveMeeting(w http.ResponseWriter, r *http.Request) {
 	var err error
 	if meetingID == ""{
 		fmt.Println("new meeting")
-	  err = model.CreateMeeting(content, userID)
+	  err = service.CreateMeeting(content, userID)
 	}else{
 		fmt.Println("update meeting")
-		err = model.UpdateMeeting(content, meetingID)
+		err = service.UpdateMeeting(content, meetingID)
 	}
 	// Will only error if there is a problem with the query
 	if err != nil {
 		fmt.Println("error")
 		log.Println(err)
-		sess.AddFlash(view.Flash{"An error occurred on the server. Please try again later.", view.FlashError})
+		sess.AddFlash(Flash{"An error occurred on the server. Please try again later.", FlashError})
 		sess.Save(r, w)
 	} else {
-		sess.AddFlash(view.Flash{"Meeting added!", view.FlashSuccess})
+		sess.AddFlash(Flash{"Meeting added!", FlashSuccess})
 		sess.Save(r, w)
 		fmt.Println("redirect")
 		http.Redirect(w, r, "/meeting/index", http.StatusFound)
@@ -118,14 +117,14 @@ func UpdateMeeting(w http.ResponseWriter, r *http.Request) {
 	meeting, err := model.MeetingByID(meetingID)
 	if err != nil { // If the meeting doesn't exist
 		log.Println(err)
-		sess.AddFlash(view.Flash{"An error occurred on the server. Please try again later.", view.FlashError})
+		sess.AddFlash(Flash{"An error occurred on the server. Please try again later.", FlashError})
 		sess.Save(r, w)
 		http.Redirect(w, r, "/meeting/index", http.StatusFound)
 		return
 	}
 
 	// Display the view
-	v := view.New(r)
+	v := NewView(r)
 	v.Name = "meeting/update"
 	v.Vars["token"] = csrfbanana.Token(w, r, sess)
 	v.Vars["title"] = meeting.Title
@@ -145,14 +144,14 @@ func DeleteMeeting(w http.ResponseWriter, r *http.Request) {
 	meetingID := params.ByName("id")
 
 	// Get database result
-	err := model.DeleteMeeting(meetingID)
+	err := service.DeleteMeeting(meetingID)
 	// Will only error if there is a problem with the query
 	if err != nil {
 		log.Println(err)
-		sess.AddFlash(view.Flash{"An error occurred on the server. Please try again later.", view.FlashError})
+		sess.AddFlash(Flash{"An error occurred on the server. Please try again later.", FlashError})
 		sess.Save(r, w)
 	} else {
-		sess.AddFlash(view.Flash{"Meeting deleted!", view.FlashSuccess})
+		sess.AddFlash(Flash{"Meeting deleted!", FlashSuccess})
 		sess.Save(r, w)
 	}
 	http.Redirect(w, r, "/meeting/index", http.StatusFound)

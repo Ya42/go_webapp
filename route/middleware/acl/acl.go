@@ -2,7 +2,7 @@ package acl
 
 import (
 	"net/http"
-	"github.com/ya42/go_webapp/service/session"
+	"github.com/ya42/go_webapp/common/session"
 )
 
 // DisallowAuth does not allow authenticated users to access the page

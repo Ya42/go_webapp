@@ -1,4 +1,4 @@
-package plugin
+package viewplugin
 
 import (
 	"html/template"

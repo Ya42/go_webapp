@@ -7,14 +7,14 @@ import (
 	"runtime"
 
 	"github.com/ya42/go_webapp/route"
-	"github.com/ya42/go_webapp/service/database"
-	"github.com/ya42/go_webapp/service/email"
-	"github.com/ya42/go_webapp/service/jsonconfig"
-	"github.com/ya42/go_webapp/service/recaptcha"
-	"github.com/ya42/go_webapp/service/server"
-	"github.com/ya42/go_webapp/service/session"
-	"github.com/ya42/go_webapp/service/view"
-	"github.com/ya42/go_webapp/service/view/plugin"
+	//"github.com/ya42/go_webapp/common/databaseAdapter/boltAdapter"
+	"github.com/ya42/go_webapp/common/email"
+	"github.com/ya42/go_webapp/common/jsonconfig"
+	"github.com/ya42/go_webapp/common/recaptcha"
+	"github.com/ya42/go_webapp/common/server"
+	"github.com/ya42/go_webapp/common/session"
+	"github.com/ya42/go_webapp/controller"
+	//"github.com/ya42/go_webapp/plugin/viewplugin"
 )
 
 // *****************************************************************************
