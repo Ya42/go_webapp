@@ -2,7 +2,7 @@ package model
 
 import (
 	"time"
-	"gopkg.in/mgo.v2/bson"
+	//"gopkg.in/mgo.v2/bson"
 )
 
 // *****************************************************************************
@@ -11,7 +11,7 @@ import (
 
 // Meeting table contains the information for each meeting
 type Meeting struct {
-	ObjectID  bson.ObjectId `bson:"_id"`
+	ID  string `db:"id" bson:"id"`
 	Title   string  `db:"title" bson:"title"`
 	Location string `db:"location" bson:"location"`
 	Starttime string `db:"starttime" bson:"starttime"`

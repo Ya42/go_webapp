@@ -1,17 +1,17 @@
-package viewplugin
+package plugin
 
 import (
 	"html/template"
 	"log"
 
-	"github.com/ya42/go_webapp/service/view"
+	"github.com/ya42/go_webapp/controller"
 )
 
 // TagHelper returns a template.FuncMap
 // * JS returns JavaScript tag
 // * CSS returns stylesheet tag
 // * LINK returns hyperlink tag
-func TagHelper(v view.View) template.FuncMap {
+func TagHelper(v controller.View) template.FuncMap {
 	f := make(template.FuncMap)
 
 	f["JS"] = func(s string) template.HTML {

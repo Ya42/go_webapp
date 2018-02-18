@@ -16,15 +16,13 @@ var (
 )
 
 // Connect to the database
-func Connect(path string, timeout int) BoltConnection{
-  db, err := bolt.Open(path, 0600, nil)
+func Connect(path string) (BoltConnection){
+  db, err := bolt.Open("gowebapp.db", 0600, nil)
 	if err != nil {
-	  log.Fatalln("Bolt Driver Error", err)
-		Connection.Database = nil
-		Connection.LastError = err
-		return Connection
+	  log.Fatalln(err)
 	}
-	Connection.Database = db
+  Connection.Database = db
+	Connection.LastError = err
 	return Connection
 }
 
@@ -43,7 +41,8 @@ func (db BoltConnection) Update(bucketName string, key string, dataStruct interf
 		if e != nil {
 			return e
 		}
-		if e = bucket.Put([]byte(key), encodedRecord); e != nil {
+		e = bucket.Put([]byte(key), encodedRecord)
+		if e != nil {
 			return e
 		}
 		return nil
@@ -54,6 +53,7 @@ func (db BoltConnection) Update(bucketName string, key string, dataStruct interf
 func (db BoltConnection) View(bucketName string, key string, dataStruct interface{}) error {
 	err := db.Database.View(func(tx *bolt.Tx) error {
 		// Get the bucket
+		var e error
 		b := tx.Bucket([]byte(bucketName))
 		if b == nil {
 			return bolt.ErrBucketNotFound
@@ -62,11 +62,8 @@ func (db BoltConnection) View(bucketName string, key string, dataStruct interfac
 		if len(v) < 1 {
 			return bolt.ErrInvalid
 		}
-		e := json.Unmarshal(v, &dataStruct)
-		if e != nil {
-			return e
-		}
-		return nil
+		e = json.Unmarshal(v, &dataStruct)
+		return e
 	})
 	return err
 }

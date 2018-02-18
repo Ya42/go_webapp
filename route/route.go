@@ -59,16 +59,25 @@ func routes() *httprouter.Router {
 	// Login
 	r.GET("/", hr.Handler(alice.
 		New(acl.DisallowAuth).
-		ThenFunc(controller.LoginGET)))
-	r.GET("/login", hr.Handler(alice.
+		ThenFunc(controller.Login)))
+	r.GET("/account", hr.Handler(alice.
 		New(acl.DisallowAuth).
-		ThenFunc(controller.LoginGET)))
-	r.POST("/login", hr.Handler(alice.
+		ThenFunc(controller.Login)))
+	r.GET("/account/login", hr.Handler(alice.
 		New(acl.DisallowAuth).
-		ThenFunc(controller.LoginPOST)))
-	r.GET("/logout", hr.Handler(alice.
+		ThenFunc(controller.Login)))
+	r.POST("/account/login", hr.Handler(alice.
+		New(acl.DisallowAuth).
+		ThenFunc(controller.AuthenticateUser)))
+	r.GET("/account/logout", hr.Handler(alice.
 		New().
-		ThenFunc(controller.LogoutGET)))
+		ThenFunc(controller.Logout)))
+  r.GET("/account/register", hr.Handler(alice.
+		New(acl.DisallowAuth).
+		ThenFunc(controller.Register)))
+	r.POST("/account/register", hr.Handler(alice.
+		New(acl.DisallowAuth).
+		ThenFunc(controller.SaveUser)))
 
 	r.GET("/meeting", hr.Handler(alice.
 		New(acl.DisallowAuth).
@@ -76,10 +85,10 @@ func routes() *httprouter.Router {
 	r.GET("/meeting/index", hr.Handler(alice.
 			New(acl.DisallowAuth).
 			ThenFunc(controller.MeetingList)))
-	r.GET("/meeting/newmeeting", hr.Handler(alice.
+	r.GET("/meeting/new", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.CreateNewMeeting)))
-	r.POST("/meeting/newmeeting", hr.Handler(alice.
+	r.POST("/meeting/new", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.SaveMeeting)))
 	r.GET("/meeting/update/:id", hr.Handler(alice.

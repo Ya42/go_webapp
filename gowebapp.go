@@ -7,14 +7,13 @@ import (
 	"runtime"
 
 	"github.com/ya42/go_webapp/route"
-	//"github.com/ya42/go_webapp/common/databaseAdapter/boltAdapter"
 	"github.com/ya42/go_webapp/common/email"
 	"github.com/ya42/go_webapp/common/jsonconfig"
 	"github.com/ya42/go_webapp/common/recaptcha"
 	"github.com/ya42/go_webapp/common/server"
 	"github.com/ya42/go_webapp/common/session"
 	"github.com/ya42/go_webapp/controller"
-	//"github.com/ya42/go_webapp/plugin/viewplugin"
+	"github.com/ya42/go_webapp/plugin"
 )
 
 // *****************************************************************************
@@ -36,16 +35,13 @@ func main() {
 	// Configure the session cookie store
 	session.Configure(config.Session)
 
-	// Connect to database
-	database.Connect(config.Database)
-
 	// Configure the Google reCAPTCHA prior to loading view plugins
 	recaptcha.Configure(config.Recaptcha)
 
 	// Setup the views
-	view.Configure(config.View)
-	view.LoadTemplates(config.Template.Root, config.Template.Children)
-	view.LoadPlugins(
+	controller.Configure(config.View)
+	controller.LoadTemplates(config.Template.Root, config.Template.Children)
+	controller.LoadPlugins(
 		plugin.TagHelper(config.View),
 		plugin.NoEscape(),
 		plugin.PrettyTime(),
@@ -64,13 +60,12 @@ var config = &configuration{}
 
 // configuration contains the application settings
 type configuration struct {
-	Database  database.Info   `json:"Database"`
 	Email     email.SMTPInfo  `json:"Email"`
 	Recaptcha recaptcha.Info  `json:"Recaptcha"`
 	Server    server.Server   `json:"Server"`
 	Session   session.Session `json:"Session"`
-	Template  view.Template   `json:"Template"`
-	View      view.View       `json:"View"`
+	Template  controller.Template   `json:"Template"`
+	View      controller.View       `json:"View"`
 }
 
 // ParseJSON unmarshals bytes to structs
