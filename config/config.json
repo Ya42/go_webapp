@@ -30,7 +30,7 @@
 		"SiteKey": ""
 	},
 	"Server": {
-		"Hostname": "",
+		"Hostname": "localhost",
 		"UseHTTP": true,
 		"UseHTTPS": false,
 		"HTTPPort": 8080,

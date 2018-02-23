@@ -3,7 +3,9 @@ package boltAdapter
 import (
 	"encoding/json"
 	"log"
+	"bytes"
 	"github.com/boltdb/bolt"
+	"fmt"
 )
 
 type BoltConnection struct{
@@ -37,11 +39,13 @@ func (db BoltConnection) Update(bucketName string, key string, dataStruct interf
 		if e != nil {
 			return e
 		}
+		fmt.Println(bucketName)
 		encodedRecord, e := json.Marshal(dataStruct)
 		if e != nil {
 			return e
 		}
 		e = bucket.Put([]byte(key), encodedRecord)
+		fmt.Println("commited")
 		if e != nil {
 			return e
 		}
@@ -78,4 +82,23 @@ func (db BoltConnection) Delete(bucketName string, key string) error {
 		return b.Delete([]byte(key))
 	})
 	return err
+}
+
+func (db BoltConnection) Seek(bucketName string, term string) ([]string, error){
+	result := []string{}
+	var err error
+	err = db.Database.View(func(tx *bolt.Tx) error {
+		// Get the bucket
+		b := tx.Bucket([]byte(bucketName))
+		if b == nil {
+			return bolt.ErrBucketNotFound
+		}
+		c := b.Cursor()
+		prefix := []byte(term)
+		for k,_ := c.Seek(prefix); bytes.HasPrefix(k, prefix); k, _ = c.Next() {
+			result = append(result,string(k[:]))
+		}
+		return nil
+	})
+	return result,err
 }

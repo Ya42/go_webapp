@@ -36,6 +36,7 @@ func loginAttempt(sess *sessions.Session) {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	// Get session
+	fmt.Println("login")
 	sess := session.Instance(r)
 	// Display the view
 	v := NewView(r)
@@ -43,7 +44,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	v.Vars["token"] = csrfbanana.Token(w, r, sess)
 	// Refill any form fields
 	Repopulate([]string{"email"}, r.Form, v.Vars)
-  v.Render(w)
+	v.Render(w)
+}
+
+func Home(w http.ResponseWriter, r *http.Request) {
+	// Get session
+	sess := session.Instance(r)
+	// Display the view
+	v := NewView(r)
+	v.Name = "account/home"
+	v.Vars["token"] = csrfbanana.Token(w, r, sess)
+	// Refill any form fields
+	v.Vars["firstname"] = sess.Values["firstname"]
+	v.Render(w)
 }
 
 func AuthenticateUser(w http.ResponseWriter, r *http.Request) {
@@ -72,36 +85,44 @@ func AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	result := model.User{}
 	var err string
 	result, err = userService.UserByEmail(email)
+	fmt.Println(result)
   userService.Dispose()
 	fmt.Println(result.Password, password)
 	// Determine if user exists
 	if err == message.DB_NOTFOUND {
+		fmt.Println("norecord")
 		loginAttempt(sess)
 		sess.AddFlash(Flash{"No user found", FlashError})
 		sess.Save(r, w)
 	} else if err != ""{
 		// Display error message
+		fmt.Println(err)
 		log.Println(err)
 		sess.AddFlash(Flash{err, FlashError})
 		sess.Save(r, w)
 	} else if result.Deleted == 1{
+		fmt.Println("deleted")
 			// User inactive and display inactive message
 		sess.AddFlash(Flash{"Account is inactive so login is disabled.", FlashNotice})
 		sess.Save(r, w)
 	} else if !passhash.MatchString(result.Password, password){
+		fmt.Println("wrong pwd")
 		loginAttempt(sess)
 		sess.AddFlash(Flash{"Password is incorrect - Attempt: " + fmt.Sprintf("%v", sess.Values[sessLoginAttempt]), FlashWarning})
 		sess.Save(r, w)
 	} else {
 			// Login successfully
 			session.Empty(sess)
+			fmt.Println("good")
 			sess.AddFlash(Flash{"Login successful!", FlashSuccess})
-			sess.Values["email"] = email
-			sess.Values["first_name"] = result.FirstName
+			sess.Values["id"] = email
+			sess.Values["firstname"] = result.FirstName
 			sess.Save(r, w)
+			fmt.Println(sess.Values["id"])
 			http.Redirect(w, r, "/meeting/index", http.StatusFound)
 			return
 	}
+	Login(w,r)
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +134,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		sess.AddFlash(Flash{"Goodbye!", FlashNotice})
 		sess.Save(r, w)
 	}
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/account/login", http.StatusFound)
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -139,11 +160,12 @@ func SaveUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Form values
+	hash,_ :=  passhash.HashString(r.FormValue("password"))
 	user := model.User{
 		Email:r.FormValue("email"),
 		FirstName:r.FormValue("firstname"),
 		LastName:r.FormValue("lastname"),
-	  Password:r.FormValue("password")}
+	  Password:hash}
 	// Get database result
 	userService = service.NewUserService("")
 	var err string

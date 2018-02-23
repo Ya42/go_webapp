@@ -5,7 +5,7 @@ import (
 
 	"github.com/ya42/go_webapp/controller"
 	"github.com/ya42/go_webapp/route/middleware/acl"
-	hr "github.com/ya42/go_webapp/route/middleware/httprouterwrapper"
+  hr "github.com/ya42/go_webapp/route/middleware/httprouterwrapper"
 	"github.com/ya42/go_webapp/route/middleware/logrequest"
 	"github.com/ya42/go_webapp/route/middleware/pprofhandler"
 	"github.com/ya42/go_webapp/common/session"
@@ -56,48 +56,55 @@ func routes() *httprouter.Router {
 		New().
 		ThenFunc(controller.Static)))
 
-	// Login
+	// Home page
 	r.GET("/", hr.Handler(alice.
-		New(acl.DisallowAuth).
+		New().
 		ThenFunc(controller.Login)))
+
+	// Login
 	r.GET("/account", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.Login)))
+	r.GET("/account/home", hr.Handler(alice.
+	  New(acl.DisallowAnon).
+		ThenFunc(controller.Home)))
 	r.GET("/account/login", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.Login)))
 	r.POST("/account/login", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.AuthenticateUser)))
-	r.GET("/account/logout", hr.Handler(alice.
-		New().
-		ThenFunc(controller.Logout)))
-  r.GET("/account/register", hr.Handler(alice.
+	r.GET("/account/register", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.Register)))
 	r.POST("/account/register", hr.Handler(alice.
 		New(acl.DisallowAuth).
 		ThenFunc(controller.SaveUser)))
+	r.GET("/account/logout", hr.Handler(alice.
+		New().
+		ThenFunc(controller.Logout)))
 
+
+	// Meeting
 	r.GET("/meeting", hr.Handler(alice.
-		New(acl.DisallowAuth).
-		ThenFunc(controller.MeetingList)))
+		New(acl.DisallowAnon).
+		ThenFunc(controller.MeetingIndex)))
 	r.GET("/meeting/index", hr.Handler(alice.
-			New(acl.DisallowAuth).
-			ThenFunc(controller.MeetingList)))
+		New(acl.DisallowAnon).
+		ThenFunc(controller.MeetingIndex)))
 	r.GET("/meeting/new", hr.Handler(alice.
-		New(acl.DisallowAuth).
-		ThenFunc(controller.CreateNewMeeting)))
+		New(acl.DisallowAnon).
+		ThenFunc(controller.NewMeeting)))
 	r.POST("/meeting/new", hr.Handler(alice.
-		New(acl.DisallowAuth).
+		New(acl.DisallowAnon).
 		ThenFunc(controller.SaveMeeting)))
 	r.GET("/meeting/update/:id", hr.Handler(alice.
-		New(acl.DisallowAuth).
+		New(acl.DisallowAnon).
 		ThenFunc(controller.UpdateMeeting)))
 	r.POST("/meeting/update/:id", hr.Handler(alice.
 		New(acl.DisallowAnon).
 		ThenFunc(controller.SaveMeeting)))
-	r.GET("/meeting/delete/:id", hr.Handler(alice.
+	r.GET("/notepad/delete/:id", hr.Handler(alice.
 		New(acl.DisallowAnon).
 		ThenFunc(controller.DeleteMeeting)))
 

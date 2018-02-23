@@ -18,32 +18,29 @@ import (
 var meetingService *service.MeetingService
 
 // MeetingpadReadGET displays the meetings in the meetingpad
-func MeetingList(w http.ResponseWriter, r *http.Request) {
+func MeetingIndex(w http.ResponseWriter, r *http.Request) {
 	// Get session
-	fmt.Println("controller")
 	sess := session.Instance(r)
-
-	//userID := fmt.Sprintf("%s", sess.Values["id"])
-  /*userID := ""
-	fmt.Println("get meeting")
-	meetings, err := model.MeetingsByUserID(userID)
-	if err != nil {
-		log.Println(err)
-		meetings = []model.Meeting{}
-	}*/
-
+	userID := fmt.Sprintf("%s", sess.Values["id"])
+	var err string
+	meetingService = service.NewMeetingService("")
+	meetings, err := meetingService.MeetingsByUserID(userID)
+	meetingService.Dispose()
 	// Display the view
 	v := NewView(r)
 	v.Name = "meeting/index"
-	v.Vars["first_name"] = sess.Values["first_name"]
-	v.Vars["meetings"] = ""
+	v.Vars["firstname"] = sess.Values["firstname"]
+	v.Vars["meetings"] = meetings
+	if err !=  "" && err != message.DB_NOTFOUND {
+		sess.AddFlash(Flash{"An error occured retrieving meetings", FlashError})
+		sess.Save(r, w)
+	}
 	v.Render(w)
 }
 
-func CreateNewMeeting(w http.ResponseWriter, r *http.Request) {
+func NewMeeting(w http.ResponseWriter, r *http.Request) {
 	// Get session
 	sess := session.Instance(r)
-
 	// Display the view
 	v := NewView(r)
 	v.Name = "meeting/new"
@@ -54,41 +51,35 @@ func CreateNewMeeting(w http.ResponseWriter, r *http.Request) {
 func SaveMeeting(w http.ResponseWriter, r *http.Request) {
 	// Get session
 	sess := session.Instance(r)
-  curuser := sess.Values["email"].(string)
+  curuser := sess.Values["id"].(string)
 	// Validate with required fields
 	if validate, missingField := Validate(r, []string{"location","title","starttime"}); !validate {
 		sess.AddFlash(Flash{"Field missing: " + missingField, FlashError})
 		sess.Save(r, w)
-		CreateNewMeeting(w, r)
+		NewMeeting(w, r)
 		return
 	}
   meeting := model.Meeting{
 		Title:r.FormValue("title"),
 		Location:r.FormValue("location"),
 		Starttime:r.FormValue("starttime"),
-	  ID:r.FormValue("title")+curuser}
+	  ID:curuser+r.FormValue("title")}
 	var err string
 	meetingService = service.NewMeetingService("")
-	if meeting.ID == ""{
-	  err = meetingService.CreateMeeting(meeting)
-	}else{
-		err = meetingService.UpdateMeeting(meeting)
-	}
+	err = meetingService.CreateMeeting(meeting)
+	meetingService.Dispose()
 	// Will only error if there is a problem with the query
 	if err == message.DB_TRANSACTION{
-		log.Println(err)
 		sess.AddFlash(Flash{"An error occurred on the server. Please try again later.", FlashError})
 		sess.Save(r, w)
 	} else {
 		sess.AddFlash(Flash{"Meeting added!", FlashSuccess})
 		sess.Save(r, w)
-		fmt.Println("redirect")
 		http.Redirect(w, r, "/meeting/index", http.StatusFound)
 		return
 	}
 	// Display the same page
-	fmt.Println("return list")
-	MeetingList(w, r)
+	NewMeeting(w, r)
 }
 
 // UpdateMeeting displays the meeting update page
@@ -124,6 +115,6 @@ func DeleteMeeting(w http.ResponseWriter, r *http.Request) {
 		sess.AddFlash(Flash{"Meeting deleted!", FlashSuccess})
 		sess.Save(r, w)
 	}
-	http.Redirect(w, r, "/meeting/index", http.StatusFound)
+	http.Redirect(w, r, "/meeting", http.StatusFound)
 	return
 }

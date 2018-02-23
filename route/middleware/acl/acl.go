@@ -13,10 +13,9 @@ func DisallowAuth(h http.Handler) http.Handler {
 
 		// If user is authenticated, don't allow them to access the page
 		if sess.Values["id"] != nil {
-			http.Redirect(w, r, "/", http.StatusFound)
+			http.Redirect(w, r, "/account/home", http.StatusFound)
 			return
 		}
-
 		h.ServeHTTP(w, r)
 	})
 }
@@ -29,7 +28,7 @@ func DisallowAnon(h http.Handler) http.Handler {
 
 		// If user is not authenticated, don't allow them to access the page
 		if sess.Values["id"] == nil {
-			http.Redirect(w, r, "/", http.StatusFound)
+			http.Redirect(w, r, "/account/login", http.StatusFound)
 			return
 		}
 

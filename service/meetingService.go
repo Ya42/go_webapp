@@ -4,6 +4,7 @@ import (
 	"github.com/ya42/go_webapp/common/boltAdapter"
 	"github.com/ya42/go_webapp/model"
 	"github.com/ya42/go_webapp/model/message"
+	"fmt"
 )
 
 type MeetingService struct{
@@ -21,6 +22,25 @@ func (ser *MeetingService) Dispose(){
 	ser = nil
 }
 
+func (ms *MeetingService) MeetingsByUserID(userID string) ([]model.Meeting, string){
+  result := []model.Meeting{}
+	var errMsg string
+  rawres,err := ms.Db.Seek("meeting", userID)
+	fmt.Print(rawres)
+	if err != nil {
+		errMsg = message.DB_TRANSACTION
+	}else if len(rawres) ==  0{
+		errMsg = message.DB_NOTFOUND
+	}
+  for _,e := range rawres{
+		fmt.Println(e)
+		res, _ := ms.MeetingByID("user@test.commeeting 1")
+		fmt.Println(res)
+		result = append(result,res)
+	}
+	return result, errMsg
+}
+
 func (ms *MeetingService) MeetingByID(meetingID string) (model.Meeting, string){
   result := model.Meeting{}
 	var err error
@@ -34,7 +54,6 @@ func (ms *MeetingService) MeetingByID(meetingID string) (model.Meeting, string){
 	return result, errMsg
 }
 
-// MeetingCreate creates a meeting
 func (ms *MeetingService) CreateMeeting(meeting model.Meeting) string {
 	var errMsg string
 	result := model.Meeting{}
@@ -46,7 +65,6 @@ func (ms *MeetingService) CreateMeeting(meeting model.Meeting) string {
 	return errMsg
 }
 
-// MeetingUpdate updates a meeting
 func (ms *MeetingService) UpdateMeeting(meeting model.Meeting) string {
 	var errMsg string
   var err error
@@ -57,7 +75,6 @@ func (ms *MeetingService) UpdateMeeting(meeting model.Meeting) string {
 	return errMsg
 }
 
-// MeetingDelete deletes a meeting
 func (ms *MeetingService) DeleteMeeting(meetingID string) string {
 	var errMsg string
 	err := ms.Db.Delete("meeting", meetingID)

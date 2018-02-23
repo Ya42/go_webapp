@@ -23,13 +23,10 @@ func init() {
 }
 
 var (
-	// FlashError is a bootstrap class
+	// Bootstrap class
 	FlashError = "alert-danger"
-	// FlashSuccess is a bootstrap class
 	FlashSuccess = "alert-success"
-	// FlashNotice is a bootstrap class
 	FlashNotice = "alert-info"
-	// FlashWarning is a bootstrap class
 	FlashWarning = "alert-warning"
 
 	childTemplates     []string
@@ -75,7 +72,6 @@ func ReadConfig() View {
 	return viewInfo
 }
 
-// LoadTemplates will set the root and child templates
 func LoadTemplates(rootTemp string, childTemps []string) {
 	rootTemplate = rootTemp
 	childTemplates = childTemps
@@ -83,19 +79,15 @@ func LoadTemplates(rootTemp string, childTemps []string) {
 
 // LoadPlugins will combine all template.FuncMaps into one map and then set the
 // plugins for the templates
-// If a func already exists, it is rewritten, there is no error
+// overwrite previous = true
 func LoadPlugins(fms ...template.FuncMap) {
 	// Final FuncMap
 	fm := make(template.FuncMap)
-
-	// Loop through the maps
 	for _, m := range fms {
-		// Loop through each key and value
 		for k, v := range m {
 			fm[k] = v
 		}
 	}
-
 	// Load the plugins
 	mutexPlugins.Lock()
 	pluginCollection = fm

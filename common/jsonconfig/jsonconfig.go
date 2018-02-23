@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"github.com/ya42/go_webapp/common/jsonconfig"
 )
 
 // Parser must implement ParseJSON
@@ -37,4 +38,9 @@ func Load(configFile string, p Parser) {
 	if err := p.ParseJSON(jsonBytes); err != nil {
 		log.Fatalln("Could not parse %q: %v", configFile, err)
 	}
+}
+
+
+func (c *configuration) ParseJSON(b []byte) error {
+	return json.Unmarshal(b, &c)
 }

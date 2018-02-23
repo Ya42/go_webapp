@@ -16,12 +16,12 @@
 			<label for="starttime">Start Time</label>
 		  <input type="text" name="starttime">
 		</div>
-
-		<a title="Save" class="btn btn-success" role="submit" onclick="document.getElementById('form').submit();">
+		<a title="Save" class="btn btn-success" role="submit">
 			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Save
 		</a>
-		<a title="Cancel" class="btn btn-danger" role="button" href="{{$.BaseURI}}meeting/index">
-			<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Back
+	  <input type="submit" class="btn btn-primary" value="Create" class="button" />
+		<a title="Back to Notepad" class="btn btn-danger" role="button">
+			<span class="glyphicon glyphicon-menu-left" aria-hidden="true" href="{{$.BaseURI}}meeting/index">></span>
 		</a>
 
 		<input type="hidden" name="token" value="{{.token}}">
