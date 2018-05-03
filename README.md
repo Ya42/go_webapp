@@ -61,8 +61,9 @@ HTML templates. I have not experimented with ajax so far.
 Be careful and consistent with naming. Don't forget to synchronize the http route table in route.go
 
 ## Database
-
+//todo
 
 ## Configuration
+//todo
 
 
