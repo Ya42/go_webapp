@@ -64,6 +64,6 @@ Be careful and consistent with naming. Don't forget to synchronize the http rout
 //todo
 
 ## Configuration
-//todo
+config file
 
 
